@@ -1,7 +1,6 @@
 package SrlTDigestBenchmarks;
 
 import com.tdunning.math.stats.MergingDigest;
-import com.tdunning.math.stats.TDigest;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 import java.nio.ByteBuffer;

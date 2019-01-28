@@ -1,19 +1,13 @@
 package SrlTDigestBenchmarks;
 
 import com.tdunning.math.stats.MergingDigest;
-import com.tdunning.math.stats.TDigest;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class LgPerformanceBench {
     private static Random gen = new Random();
     private static long startDur;
     private static long endDur;
-    private static final double percentile = 95;
-    private static final int totalLgDataSize = SrlConsts.LgValuesPerDimension * SrlConsts.MaxTransactions * SrlConsts.MaxEmulations;
 
     public static double[][] generateLgData() {
         // Create random data
@@ -51,6 +45,7 @@ public class LgPerformanceBench {
         return lgsByteBuffers;
     }
 
+    // Todo: Split processing to different threads
     public static ByteBuffer[] mergeLgsTDigests(ByteBuffer[][] lgsBuffers) {
         System.out.println("mergeLgsTDigests: Merging " + lgsBuffers.length + " TDigests and converting to buffers ");
         startDur = System.currentTimeMillis();
@@ -108,5 +103,7 @@ public class LgPerformanceBench {
         }
 
         mergeLgsTDigests(lgsBuffers);
+
+        // todo: Add processing of all Aggs and reporter
     }
 }
