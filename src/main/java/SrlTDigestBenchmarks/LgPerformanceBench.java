@@ -41,9 +41,9 @@ public class LgPerformanceBench {
             for (int j = 0; j < SrlConsts.LgValuesPerDimension; j++) {
                 lgsTDigests[i].add(data[i][j]);
             }
-            bufSize = lgsTDigests[i].byteSize();
+            bufSize = lgsTDigests[i].smallByteSize();
             lgsByteBuffers[i] = ByteBuffer.allocate(bufSize);
-            lgsTDigests[i].asBytes(lgsByteBuffers[i]);
+            lgsTDigests[i].asSmallBytes(lgsByteBuffers[i]);
         }
         endDur = System.currentTimeMillis();
         System.out.println("createLgDigestsBuffers: duration (msec) = " + ((endDur - startDur)));
@@ -58,12 +58,12 @@ public class LgPerformanceBench {
         var aggregatorTDigests = new MergingDigest[SrlConsts.MaxDimensions];
         var aggsByteBuffers = new ByteBuffer[SrlConsts.MaxDimensions];
         for (int i = 0; i < SrlConsts.MaxDimensions; i++) {
-            aggregatorTDigests[i] = new MergingDigest(SrlConsts.TdCompression);
+            aggregatorTDigests[i] = new MergingDigest(SrlConsts.TdAggCompression);
         }
 
         for (int i = 0; i < SrlConsts.TDigestsPerResultsAggregator; i++) {
             for (int j = 0; j < SrlConsts.MaxDimensionsPerLg; j++) {
-                aggregatorTDigests[(i % SrlConsts.MaxRegions) * j].add(MergingDigest.fromBytes(lgsBuffers[i][j]));
+                aggregatorTDigests[((i % SrlConsts.MaxRegions) * SrlConsts.MaxDimensionsPerLg) + j].add(MergingDigest.fromBytes(lgsBuffers[i][j]));
             }
         }
         endDur = System.currentTimeMillis();
@@ -71,9 +71,9 @@ public class LgPerformanceBench {
 
         startDur = System.currentTimeMillis();
         for (int i = 0; i < SrlConsts.MaxDimensions; i++) {
-            bufSize = aggregatorTDigests[i].byteSize();
+            bufSize = aggregatorTDigests[i].smallByteSize();
             aggsByteBuffers[i] = ByteBuffer.allocate(bufSize);
-            aggregatorTDigests[i].asBytes(aggsByteBuffers[i]);
+            aggregatorTDigests[i].asSmallBytes(aggsByteBuffers[i]);
         }
         endDur = System.currentTimeMillis();
         System.out.println("mergeLgsTDigests: Convert to buffer duration (msec) = " + ((endDur - startDur)));
