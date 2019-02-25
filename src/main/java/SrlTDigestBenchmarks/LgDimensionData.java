@@ -8,7 +8,7 @@ class LgDimensionData {
     private final int emulationId;
     private final int trxId;
     private final String dimensionId;
-    private final double[] rawData;
+    private double[] rawData;
     private ByteBuffer tDigestBuffer;
     private int bufSize = 0;
 
@@ -30,6 +30,8 @@ class LgDimensionData {
         bufSize = tDigest.smallByteSize();
         tDigestBuffer = ByteBuffer.allocate(bufSize);
         tDigest.asSmallBytes(tDigestBuffer);
+
+        rawData = null;
     }
 
     void rewindBuffer() {
