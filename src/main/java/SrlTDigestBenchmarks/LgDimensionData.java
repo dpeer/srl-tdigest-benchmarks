@@ -4,10 +4,11 @@ import com.tdunning.math.stats.MergingDigest;
 import java.nio.ByteBuffer;
 
 class LgDimensionData {
-    private int region;
-    private int emulationId;
-    private int trxId;
-    private double[] rawData;
+    private final int region;
+    private final int emulationId;
+    private final int trxId;
+    private final String dimensionId;
+    private final double[] rawData;
     private ByteBuffer tDigestBuffer;
     private int bufSize = 0;
 
@@ -16,6 +17,7 @@ class LgDimensionData {
         this.emulationId = emulationId;
         this.trxId = trxId;
         this.rawData = rawData;
+        this.dimensionId = region + "-" + emulationId + "-" + trxId;
     }
 
     void createTDigest() {
@@ -55,6 +57,6 @@ class LgDimensionData {
     }
 
     String getDimensionId() {
-        return region + "-" + emulationId + "-" + trxId;
+        return dimensionId;
     }
 }

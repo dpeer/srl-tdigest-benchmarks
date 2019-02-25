@@ -82,5 +82,11 @@ class ResAgg {
 
         totalEndDur = System.currentTimeMillis();
         System.out.println("ResAgg.createTDigests: total duration (msec) = " + ((totalEndDur - totalStartDur)));
+
+        var sumSize = 0;
+        for (var aggByteBuffer : aggByteBuffers.values()) {
+            sumSize += aggByteBuffer.position();
+        }
+        System.out.println("ResAgg.createTDigests: total buffers size = " + sumSize);
     }
 }

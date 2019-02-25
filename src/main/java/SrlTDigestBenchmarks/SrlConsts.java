@@ -10,7 +10,7 @@ public class SrlConsts {
     public final static int MaxTransactionsPerLgPerInterval = MaxTransactions / 2;
     public final static int MaxRegions = 10;
     public final static int MaxDimensions = MaxRegions * MaxTransactions * MaxEmulations;
-    public final static int LgValuesPerDimension = 80;
+    public final static int LgValuesPerDimension = 960;
     public final static int MaxDimensionsPerLg = MaxTransactionsPerLgPerInterval * MaxEmulations;
     public final static int DataSizeInLg = MaxDimensionsPerLg * LgValuesPerDimension;
     //public final static int ResultsAggregatorsNum = 16;

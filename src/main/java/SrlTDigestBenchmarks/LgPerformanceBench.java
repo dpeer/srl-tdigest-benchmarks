@@ -29,7 +29,14 @@ public class LgPerformanceBench {
         System.out.println("Creating LG TDigests");
         startDur = System.currentTimeMillis();
         lgData.createTDigests();
+        //lgData.rewindBuffers();
         endDur = System.currentTimeMillis();
         System.out.println("Creating LG TDigests duration (msec) = " + (endDur - startDur));
+
+        var sumSize = 0;
+        for (var lgDimensionsData : lgData.getLgDimensionsData()) {
+            sumSize += lgDimensionsData.getTDigestBuffer().position();
+        }
+        System.out.println("Total buffers size = " + sumSize);
     }
 }
