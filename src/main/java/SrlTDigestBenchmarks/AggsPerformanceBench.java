@@ -10,12 +10,12 @@ public class AggsPerformanceBench {
     private static long startDur;
     private static long endDur;
 
-    static double[][] generateLgData() {
+    static double[][] generateLgData(int aggsNum) {
         // Create random data
         //System.out.println("Generating " + SrlConsts.MaxDimensionsPerLg * SrlConsts.LgValuesPerDimension + " random values grouped by " + SrlConsts.MaxDimensionsPerLg + " dimensions per LGs");
-        var data = new double[SrlConsts.MaxDimensionsPerLg][SrlConsts.LgValuesPerDimension];
+        var data = new double[SrlConsts.MaxDimensions / aggsNum][SrlConsts.LgValuesPerDimension];
 
-        for (int i = 0; i < SrlConsts.MaxDimensionsPerLg; i++) {
+        for (int i = 0; i < SrlConsts.MaxDimensions / aggsNum; i++) {
             for (int j = 0; j< SrlConsts.LgValuesPerDimension; j++){
                 data[i][j] = gen.nextDouble() * 100;
             }
@@ -26,7 +26,7 @@ public class AggsPerformanceBench {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.out.println("Usage: aggrgatorNum ThreadsNum");
+            System.out.println("Usage: aggregatorNum ThreadsNum");
             System.exit(-1);
         }
         int aggsNum = Integer.parseInt(args[0]);
@@ -39,10 +39,18 @@ public class AggsPerformanceBench {
         // 3. Convert to ByteBuffer
         for (int i = 0; i < (SrlConsts.MaxLgs); i++) {
             System.out.println("LG #" + (i + 1) + "/" + SrlConsts.MaxLgs);
-            var data = generateLgData();
+            var data = generateLgData(aggsNum);
             var lgData = new LgData(i % SrlConsts.MaxRegions, data, SrlConsts.MaxEmulations, SrlConsts.MaxTransactions / aggsNum);
             lgData.createTDigests();
             lgsData.add(lgData);
+
+            if ((i % 100) == 0) {
+                var sumSize = 0;
+                for (var lgDimensionsData : lgData.getLgDimensionsData()) {
+                    sumSize += lgDimensionsData.getTDigestBuffer().position();
+                }
+                System.out.println("LG total buffers size = " + sumSize);
+            }
         }
 
         var dimensionsIds = new HashSet<String>();
