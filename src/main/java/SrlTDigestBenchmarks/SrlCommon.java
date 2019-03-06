@@ -14,4 +14,8 @@ public class SrlCommon {
 
         return markers;
     }
+
+    public static String createDimensionId(int region, int emulationId, int trxId) {
+        return region + "-" + emulationId + "-" + trxId;
+    }
 }
