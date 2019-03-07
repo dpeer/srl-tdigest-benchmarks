@@ -1,5 +1,6 @@
-package SrlTDigestBenchmarks;
+package SrlTDigestBenchmarks.DimensionDigest;
 
+import Common.LgDimensionData;
 import com.tdunning.math.stats.MergingDigest;
 
 import java.nio.ByteBuffer;

@@ -1,4 +1,7 @@
-package SrlTDigestBenchmarks;
+package SrlTDigestBenchmarks.DimensionDigest;
+
+import Common.LgData;
+import Common.SrlConsts;
 
 import java.util.ArrayList;
 import java.util.HashSet;

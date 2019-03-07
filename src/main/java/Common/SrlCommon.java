@@ -1,4 +1,4 @@
-package SrlTDigestBenchmarks;
+package Common;
 
 public class SrlCommon {
     public static double[] generatePercentileMarkers(double percentile, double perDelta, int perSteps) {

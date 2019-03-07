@@ -1,5 +1,8 @@
 package SrlTDigestBenchmarks;
 
+import Common.LgData;
+import Common.SrlConsts;
+
 import java.util.Random;
 
 

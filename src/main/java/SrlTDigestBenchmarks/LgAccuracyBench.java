@@ -1,5 +1,7 @@
 package SrlTDigestBenchmarks;
 
+import Common.SrlCommon;
+import Common.SrlConsts;
 import com.tdunning.math.stats.MergingDigest;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 

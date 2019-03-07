@@ -1,4 +1,4 @@
-package SrlTDigestBenchmarks;
+package Common;
 
 public class SrlConsts {
 
