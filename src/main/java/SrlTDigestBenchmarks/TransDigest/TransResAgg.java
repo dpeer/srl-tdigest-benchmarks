@@ -1,29 +1,37 @@
 package SrlTDigestBenchmarks.TransDigest;
 
+import Common.Dal;
 import Common.LgData;
-import Common.LgDimensionData;
 import Common.SrlConsts;
 import com.tdunning.math.stats.MergingDigest;
+
 import java.nio.ByteBuffer;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 class TransResAgg {
+    private String loadTestId;
+    private long startTime;
+    private long endTime;
     private List<LgData> lgsData;
     private Map<String, List<ByteBuffer>> lgsTransTDigestsBuffers;
     private Set<String> transNames;
     private int threadsNum;
 
-    TransResAgg(List<LgData> lgsData, int numTransactions, int threadsNum) {
+    TransResAgg(String loadTestId, long startTime, long endTime, List<LgData> lgsData, int numTransactions, int threadsNum) {
+        this.loadTestId = loadTestId;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.lgsData = lgsData;
         this.lgsTransTDigestsBuffers = new HashMap<>(numTransactions);
         this.transNames = new HashSet<>(numTransactions);
         this.threadsNum = threadsNum;
     }
 
-    void createTDigests() throws InterruptedException {
+    void createTDigests(boolean saveToDB) {
         long totalStartDur, totalEndDur, startDur, endDur;
         int numTransactionsActual;
 
@@ -76,17 +84,20 @@ class TransResAgg {
         System.out.println("TransResAgg.createTDigests: Group data for MT duration (msec) = " + (endDur - startDur) + "; #Groups = " + threadsGroups.size());
 
         var threadsCount = threadsGroups.size();
-        var threads = new ArrayList<TransAggTDigest>(threadsCount);
+        var threads = new ArrayList<TransAggTDigestThread>(threadsCount);
         for (var threadGroupKey : threadsGroups.keySet()) {
-            threads.add(new TransAggTDigest("Thread " + threadGroupKey, aggTDigests, threadsGroups.get(threadGroupKey), aggByteBuffers));
-        }
-        for (var thread : threads) {
-            thread.start();
+            threads.add(new TransAggTDigestThread("Thread " + threadGroupKey, aggTDigests, threadsGroups.get(threadGroupKey), aggByteBuffers));
         }
 
-        for (var thread : threads) {
-            thread.join();
-        }
+        threads.forEach(Thread::start);
+
+        threads.forEach(thread-> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
         totalEndDur = System.currentTimeMillis();
         System.out.println("TransResAgg.createTDigests: total duration (msec) = " + ((totalEndDur - totalStartDur)));
@@ -96,5 +107,19 @@ class TransResAgg {
             sumSize += aggByteBuffer.position();
         }
         System.out.println("TransResAgg.createTDigests: total buffers size = " + sumSize);
+
+        if (saveToDB) {
+            System.out.println("TransResAgg.createTDigests: Saving to DB");
+            startDur = System.currentTimeMillis();
+
+            try {
+                Dal.saveTDigestTransMetrics(loadTestId, startTime, endTime, aggByteBuffers);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            endDur = System.currentTimeMillis();
+            System.out.println("TransResAgg.createTDigests: Saving to DB duration (msec) = " + (endDur - startDur));
+        }
     }
 }

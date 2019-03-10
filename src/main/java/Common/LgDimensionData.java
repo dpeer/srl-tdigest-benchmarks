@@ -38,7 +38,7 @@ public class LgDimensionData {
 
     public void addToTDigest(TDigest tDigest) {
         for (int i = 0; i < SrlConsts.LgValuesPerDimension; i++) {
-            tDigest.add(rawData[i]);
+            tDigest.add(rawData[i] + (transId % 100 == 0 ? 300 : 0));
         }
     }
 

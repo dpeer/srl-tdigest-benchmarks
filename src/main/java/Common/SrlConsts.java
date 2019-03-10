@@ -2,6 +2,8 @@ package Common;
 
 public class SrlConsts {
 
+    public final static int NumIterations = 60;
+    public final static int AggDurationMilliSeconds = 60000;
     public final static int TdCompression = 100;
     public final static int TdAggCompression = 200;
     public final static int MaxLgs = 20;

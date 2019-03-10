@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class TransAggTDigest extends Thread {
+class TransAggTDigestThread extends Thread {
     private String threadName;
     private Map<String, MergingDigest> aggregatorTDigests;
     private List<Map.Entry<String, List<ByteBuffer>>> lgsTransTDigestsBuffersEntries;
     private Map<String, ByteBuffer> aggByteBuffers;
     private Set<String> transNames;
 
-    TransAggTDigest(String name, Map<String, MergingDigest> aggregatorTDigests, List<Map.Entry<String, List<ByteBuffer>>> lgsTransTDigestsBuffersEntries, Map<String, ByteBuffer> aggByteBuffers) {
+    TransAggTDigestThread(String name, Map<String, MergingDigest> aggregatorTDigests, List<Map.Entry<String, List<ByteBuffer>>> lgsTransTDigestsBuffersEntries, Map<String, ByteBuffer> aggByteBuffers) {
         threadName = name;
         this.aggregatorTDigests = aggregatorTDigests;
         this.lgsTransTDigestsBuffersEntries = lgsTransTDigestsBuffersEntries;

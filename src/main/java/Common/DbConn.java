@@ -7,37 +7,29 @@ import java.util.Properties;
 
 public class DbConn
 {
-    private boolean isInit;
-    private static Connection dbConnection;
+    private static boolean isInit = false;
+    private static Connection dbConnection = null;
 
-    private DbConn() {
-        isInit = false;
-        dbConnection = null;
-    }
-
-    // Inner class to provide instance of class
-    private static class DbConnSingleton {
-        private static final DbConn INSTANCE = new DbConn();
-    }
-
-    public static DbConn getInstance() {
-        return DbConnSingleton.INSTANCE;
-    }
-
-    public boolean isInit() {
+    public static boolean isInit() {
         return isInit;
     }
 
-    public boolean init(String url, Properties props) throws SQLException {
+    public static boolean init() throws SQLException {
         if (isInit) {
             return false;
         }
-        dbConnection = DriverManager.getConnection(url, props);
         isInit = true;
+
+        String url = "jdbc:postgresql://localhost:32768/postgres";
+        Properties props = new Properties();
+        props.setProperty("user","postgres");
+        props.setProperty("password","tdigest-pg");
+
+        dbConnection = DriverManager.getConnection(url, props);
         return true;
     }
 
-    public Connection getDbConnection() {
+    public static Connection getDbConnection() {
         return dbConnection;
     }
 }
