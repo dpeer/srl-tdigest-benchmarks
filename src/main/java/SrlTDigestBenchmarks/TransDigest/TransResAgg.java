@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 class TransResAgg {
-    private String loadTestId;
     private long startTime;
     private long endTime;
     private List<LgData> lgsData;
@@ -21,8 +20,7 @@ class TransResAgg {
     private Set<String> transNames;
     private int threadsNum;
 
-    TransResAgg(String loadTestId, long startTime, long endTime, List<LgData> lgsData, int numTransactions, int threadsNum) {
-        this.loadTestId = loadTestId;
+    TransResAgg(long startTime, long endTime, List<LgData> lgsData, int numTransactions, int threadsNum) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.lgsData = lgsData;
@@ -113,7 +111,7 @@ class TransResAgg {
             startDur = System.currentTimeMillis();
 
             try {
-                Dal.saveTDigestTransMetrics(loadTestId, startTime, endTime, aggByteBuffers);
+                Dal.saveTDigestTransMetrics(startTime, endTime, aggByteBuffers);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

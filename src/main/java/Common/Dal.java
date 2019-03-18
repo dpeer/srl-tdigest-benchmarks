@@ -1,5 +1,7 @@
 package Common;
 
+import Common.Pojos.TransTDigestMetricsPojo;
+
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,13 +37,12 @@ public class Dal {
         return pojos;
     }
 
-    public static void saveTDigestTransMetrics(String loadTestId, long startTime, long endTime, Map<String, ByteBuffer> tdigestsBuffers) throws SQLException {
+    public static void saveTDigestTransMetrics(long startTime, long endTime, Map<String, ByteBuffer> tdigestsBuffers) throws SQLException {
         var conn = DbConn.getDbConnection();
-        var ps = conn.prepareStatement("INSERT INTO tdigest_transaction_metrics VALUES (?, ?, ?, ?, ?, ?, ?)");
+        var ps = conn.prepareStatement("INSERT INTO tdigest_transaction_metrics VALUES (?, ?, ?, ?, ?, ?)");
 
         for (var tdigest : tdigestsBuffers.entrySet()) {
             var pojo = new TransTDigestMetricsPojo(
-                    loadTestId,
                     startTime,
                     endTime,
                     tdigest.getKey(),

@@ -8,18 +8,18 @@ import java.nio.ByteBuffer;
 public class LgDimensionData {
     private final int region;
     private final int emulationId;
-    private final int transId;
+    private final String transName;
     private final String dimensionId;
     private double[] rawData;
     private ByteBuffer tDigestBuffer;
     private int bufSize = 0;
 
-    public LgDimensionData(int region, int emulationId, int transId, double[] rawData) {
+    public LgDimensionData(int region, int emulationId, String transName, double[] rawData) {
         this.region = region;
         this.emulationId = emulationId;
-        this.transId = transId;
+        this.transName = transName;
         this.rawData = rawData;
-        this.dimensionId = region + "-" + emulationId + "-" + transId;
+        this.dimensionId = region + "-" + emulationId + "-" + transName;
     }
 
     public void createTDigest() {
@@ -37,8 +37,8 @@ public class LgDimensionData {
     }
 
     public void addToTDigest(TDigest tDigest) {
-        for (int i = 0; i < SrlConsts.LgValuesPerDimension; i++) {
-            tDigest.add(rawData[i] + (transId % 100 == 0 ? 300 : 0));
+        for (int i = 0; i < rawData.length; i++) {
+            tDigest.add(rawData[i]);
         }
     }
 
@@ -58,11 +58,9 @@ public class LgDimensionData {
         return emulationId;
     }
 
-    public int getTransId() {
-        return transId;
+    public String getTransName() {
+        return transName;
     }
-
-    public String getTransName() { return String.valueOf(transId); }
 
     public int getBufSize() {
         return bufSize;

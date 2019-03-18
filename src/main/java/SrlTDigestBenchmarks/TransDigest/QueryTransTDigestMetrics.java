@@ -3,7 +3,7 @@ package SrlTDigestBenchmarks.TransDigest;
 import Common.Dal;
 import Common.DbConn;
 import Common.SrlConsts;
-import Common.TransTDigestMetricsPojo;
+import Common.Pojos.TransTDigestMetricsPojo;
 import com.tdunning.math.stats.MergingDigest;
 
 import java.nio.ByteBuffer;

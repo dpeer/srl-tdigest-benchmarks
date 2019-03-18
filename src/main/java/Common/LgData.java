@@ -1,10 +1,12 @@
 package Common;
 
+import Common.Pojos.RawDataPojo;
 import com.tdunning.math.stats.MergingDigest;
 import com.tdunning.math.stats.TDigest;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LgData {
     private ArrayList<LgDimensionData> lgDimensionsData;
@@ -23,7 +25,7 @@ public class LgData {
                 lgDimensionsData.add(new LgDimensionData(
                         region,
                         i,
-                        j + (rand % 2 == 0 ? 0 : SrlConsts.MaxTransactionsPerLgPerInterval),
+                        String.valueOf(j + (rand % 2 == 0 ? 0 : SrlConsts.MaxTransactionsPerLgPerInterval)),
                         rawData[i * SrlConsts.MaxTransactionsPerLgPerInterval + j])
                 );
             }
@@ -36,8 +38,24 @@ public class LgData {
 
         for (int i = 0; i < numOfEmulations; i++) {
             for (int j = 0; j < numOfTransactions; j++) {
-                lgDimensionsData.add(new LgDimensionData(region, i, j, rawData[i * numOfTransactions + j]));
+                lgDimensionsData.add(new LgDimensionData(region, i, String.valueOf(j), rawData[i * numOfTransactions + j]));
             }
+        }
+    }
+
+    public LgData(int region, List<RawDataPojo> rawData) {
+        this.region = region;
+        lgDimensionsData = new ArrayList<>();
+
+        var rawDataByDimension = rawData.stream().collect(Collectors.groupingBy(RawDataPojo::getDimensionId));
+
+        for (var rawDataByDimensionKey : rawDataByDimension.keySet()) {
+            lgDimensionsData.add(new LgDimensionData(
+                    region,
+                    0,
+                    rawDataByDimensionKey,
+                    rawDataByDimension.get(rawDataByDimensionKey).stream().mapToDouble(RawDataPojo::getDuration).toArray())
+            );
         }
     }
 

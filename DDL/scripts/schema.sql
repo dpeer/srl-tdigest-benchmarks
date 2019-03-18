@@ -1,4 +1,4 @@
-CREATE TABLE transaction_dimensions (
+CREATE TABLE transaction_dimensions_tdigest (
 	load_test_run_id text,
 	script_id text,
 	transaction_name text,
@@ -8,17 +8,8 @@ CREATE TABLE transaction_dimensions (
 	id uuid
 );
 
-CREATE TABLE tdigest_metrics (
-	load_test_run_id text,
-	start_time bigint,
-	end_time bigint,
-	dimension_id uuid,
-	grouped boolean,
-	tdigest_buf bytea
-);
 
 CREATE TABLE tdigest_transaction_metrics (
-	load_test_run_id text,
 	start_time bigint,
 	end_time bigint,
 	script_id text,
