@@ -17,11 +17,20 @@ public class DbConn {
         if (isInit) {
             return true;
         }
+        var dbHost = System.getenv("TD_DB_HOST");
+        if (dbHost == null) { dbHost = "localhost"; }
+        var dbName = System.getenv("TD_DB_NAME");
+        if (dbName == null) { dbName = "postgres"; }
+        var dbUser = System.getenv("TD_DB_USER");
+        if (dbUser == null) { dbUser = "postgres"; }
+        var dbPass = System.getenv("TD_DB_PASS");
+        if (dbPass == null) { dbPass = ""; }
         isInit = true;
 
-        String url = "jdbc:postgresql://localhost:5432/postgres";
+        String url = "jdbc:postgresql://" + dbHost + ":5432/" + dbName;
         Properties props = new Properties();
-        props.setProperty("user","postgres");
+        props.setProperty("user", dbUser);
+        props.setProperty("password" ,dbPass);
 
         dbConnection = DriverManager.getConnection(url, props);
         return true;

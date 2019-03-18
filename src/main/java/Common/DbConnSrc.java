@@ -21,7 +21,7 @@ public class DbConnSrc {
         var dbNameSrc = System.getenv("TD_DB_NAME_SRC");
         var dbUserSrc = System.getenv("TD_DB_USER_SRC");
         var dbPassSrc = System.getenv("TD_DB_PASS_SRC");
-        if (dbHostSrc.length() == 0 || dbNameSrc.length() == 0 || dbUserSrc.length() == 0 || dbPassSrc.length() == 0) {
+        if (dbHostSrc == null || dbNameSrc == null || dbUserSrc == null || dbPassSrc == null) {
             return false;
         }
         isInit = true;

@@ -41,7 +41,7 @@ public class TransAggsPerformanceBench {
             tenantId = args[4];
             testId = args[5];
             runId = args[6];
-            if (tenantId.length() == 0 || testId.length() == 0 || runId.length() == 0) {
+            if (tenantId.isEmpty() || testId.isEmpty() || runId.isEmpty()) {
                 System.out.println("Must provide tenantId & testId & runId");
                 System.exit(-1);
             }
@@ -67,15 +67,6 @@ public class TransAggsPerformanceBench {
                 System.out.println("Failed to connect to Source DB");
                 System.exit(-1);
             }
-
-            startDur = System.currentTimeMillis();
-            externalDimensions = DalSrc.getDimensions(tenantId, testId, runId);
-            endDur = System.currentTimeMillis();
-            System.out.println("Main: Get source dimensions duration (msec) = " + ((endDur - startDur)) + "; Dimensions count = " + externalDimensions.size());
-
-            for (var externalDimension : externalDimensions) {
-                externalDimensionIds.put(externalDimension.getId(), externalDimension);
-            }
         }
 
         for (int iterNum = 0; iterNum < SrlConsts.NumIterations; iterNum++) {
@@ -84,17 +75,20 @@ public class TransAggsPerformanceBench {
             lgsData.clear();
 
             if (fromSrcDB) {
+                startDur = System.currentTimeMillis();
                 var rawData = DalSrc.getRawData(
                         tenantId,
                         testId,
                         runId,
                         iterNum * SrlConsts.AggDurationMilliSeconds,
                         ((iterNum + 1) * SrlConsts.AggDurationMilliSeconds) - 1);
-                var totalSize = rawData.size();
-                var sizePerLg = totalSize / SrlConsts.MaxLgs;
+                var rawDataSize = rawData.size();
+                endDur = System.currentTimeMillis();
+                System.out.println("getRawData duration(msec) = " + ((endDur - startDur)) + "; Raw data count = " + rawDataSize);
+                var sizePerLg = rawDataSize / SrlConsts.MaxLgs;
 
                 for (int i = 0; i < SrlConsts.MaxLgs; i++) {
-                    var lgRawData = rawData.subList(sizePerLg * i, Math.min(sizePerLg * (i + 1), totalSize));
+                    var lgRawData = rawData.subList(sizePerLg * i, Math.min(sizePerLg * (i + 1), rawDataSize));
 
                     var lgData = new LgData(1, lgRawData);
                     lgData.createTransTDigests();
