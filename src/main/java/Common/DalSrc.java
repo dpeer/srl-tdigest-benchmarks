@@ -11,11 +11,11 @@ import java.util.List;
 
 public class DalSrc {
 
-    private static String createTableName(String tenantId, String testId, String runId, String tableName) {
-        return tenantId + "." + tableName + "_" + testId + "_" + runId;
+    private static String createTableName(String testId, String runId, String tableName) {
+        return tableName + "_" + testId + "_" + runId;
     }
 
-    public static List<TransDimensionPojo> getDimensions(String tenantId, String testId, String runId) throws SQLException {
+    public static List<TransDimensionPojo> getDimensions(String testId, String runId) throws SQLException {
         var pojos = new ArrayList<TransDimensionPojo>();
         var conn = DbConnSrc.getDbConnection();
         Statement st = conn.createStatement();
@@ -25,8 +25,8 @@ public class DalSrc {
 
         // Turn use of the cursor on.
         st.setFetchSize(100);
-        ResultSet rs = st.executeQuery("SELECT id, script_id, transaction_name FROM " + createTableName(tenantId, testId, runId, "transaction_dimensions") +
-                " WHERE id IN (SELECT DISTINCT dimension_id FROM " + createTableName(tenantId, testId, runId, "raw_trn_metrics_new") + ")");
+        ResultSet rs = st.executeQuery("SELECT id, script_id, transaction_name FROM " + createTableName(testId, runId, "transaction_dimensions") +
+                " WHERE id IN (SELECT DISTINCT dimension_id FROM " + createTableName(testId, runId, "raw_trn_metrics_new") + ")");
 
         while (rs.next()) {
             pojos.add(new TransDimensionPojo(rs));
@@ -42,7 +42,7 @@ public class DalSrc {
         return pojos;
     }
 
-    public static List<RawDataPojo> getRawData(String tenantId, String testId, String runId, long from, long to) throws SQLException {
+    public static List<RawDataPojo> getRawData(String testId, String runId, long from, long to) throws SQLException {
         var pojos = new ArrayList<RawDataPojo>();
         var conn = DbConnSrc.getDbConnection();
         var idx = 1;
@@ -50,7 +50,7 @@ public class DalSrc {
 
         // make sure autocommit is off
         conn.setAutoCommit(false);
-        var ps = conn.prepareStatement("SELECT dimension_id, duration FROM " + createTableName(tenantId,testId,runId, tableName) +
+        var ps = conn.prepareStatement("SELECT dimension_id, duration FROM " + createTableName(testId, runId, tableName) +
                 " WHERE start_time >= ? AND end_time < ? " +
                 " AND transaction_status = 1");
         ps.setLong(idx++, from);

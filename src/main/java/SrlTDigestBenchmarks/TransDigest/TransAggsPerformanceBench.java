@@ -26,7 +26,7 @@ public class TransAggsPerformanceBench {
 
     public static void main(String[] args) throws SQLException {
         if (args.length < 4) {
-            System.out.println("Usage: aggregatorNum ThreadsNum saveToDB fromSrcDB [tenantId testId runId]");
+            System.out.println("Usage: aggregatorNum ThreadsNum saveToDB fromSrcDB [testId runId]");
             System.exit(-1);
         }
 
@@ -34,17 +34,15 @@ public class TransAggsPerformanceBench {
         int threadsNum = Integer.parseInt(args[1]);
         boolean saveToDB = Boolean.parseBoolean(args[2]);
         boolean fromSrcDB = Boolean.parseBoolean(args[3]);
-        String tenantId = "";
         String testId = "";
         String runId = "";
         if (fromSrcDB) {
-            tenantId = args[4];
-            testId = args[5];
-            runId = args[6];
-            if (tenantId.isEmpty() || testId.isEmpty() || runId.isEmpty()) {
-                System.out.println("Must provide tenantId & testId & runId");
+            if (args.length < 6) {
+                System.out.println("Must provide testId & runId");
                 System.exit(-1);
             }
+            testId = args[4];
+            runId = args[5];
         }
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
@@ -77,7 +75,6 @@ public class TransAggsPerformanceBench {
             if (fromSrcDB) {
                 startDur = System.currentTimeMillis();
                 var rawData = DalSrc.getRawData(
-                        tenantId,
                         testId,
                         runId,
                         iterNum * SrlConsts.AggDurationMilliSeconds,

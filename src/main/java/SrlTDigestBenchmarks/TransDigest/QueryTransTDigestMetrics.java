@@ -19,19 +19,17 @@ public class QueryTransTDigestMetrics {
         boolean fromSrcDB = false;
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
-        String tenantId = "";
         String testId = "";
         String runId = "";
         if (args.length > 0) {
             fromSrcDB = Boolean.parseBoolean(args[0]);
             if (fromSrcDB) {
-                tenantId = args[1];
-                testId = args[2];
-                runId = args[3];
-                if (tenantId.isEmpty() || testId.isEmpty() || runId.isEmpty()) {
-                    System.out.println("Must provide tenantId & testId & runId");
+                if (args.length < 3) {
+                    System.out.println("Must provide testId & runId");
                     System.exit(-1);
                 }
+                testId = args[1];
+                runId = args[2];
             }
         }
 
@@ -44,7 +42,7 @@ public class QueryTransTDigestMetrics {
             }
 
             startDur = System.currentTimeMillis();
-            externalDimensions = DalSrc.getDimensions(tenantId, testId, runId);
+            externalDimensions = DalSrc.getDimensions(testId, runId);
             endDur = System.currentTimeMillis();
             System.out.println("Main: Get source dimensions duration (msec) = " + ((endDur - startDur)) + "; Dimensions count = " + externalDimensions.size());
 
