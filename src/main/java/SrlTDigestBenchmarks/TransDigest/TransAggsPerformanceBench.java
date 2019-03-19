@@ -46,7 +46,7 @@ public class TransAggsPerformanceBench {
         }
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
-        long totalRawDataSize = 0;
+        long totalRawDataCount = 0;
         long totalLgsTdigestsSize = 0;
 
 
@@ -81,14 +81,14 @@ public class TransAggsPerformanceBench {
                         runId,
                         iterNum * SrlConsts.AggDurationMilliSeconds,
                         ((iterNum + 1) * SrlConsts.AggDurationMilliSeconds) - 1);
-                var rawDataSize = rawData.size();
-                totalRawDataSize += rawDataSize;
+                var rawDataCount = rawData.size();
+                totalRawDataCount += rawDataCount;
                 endDur = System.currentTimeMillis();
-                System.out.println("getRawData duration(msec) = " + ((endDur - startDur)) + "; Raw data count = " + rawDataSize);
-                var sizePerLg = rawDataSize / SrlConsts.MaxLgs;
+                System.out.println("getRawData duration (msec) = " + ((endDur - startDur)) + "; Raw data count = " + rawDataCount);
+                var countPerLg = rawDataCount / SrlConsts.MaxLgs;
 
                 for (int i = 0; i < SrlConsts.MaxLgs; i++) {
-                    var lgRawData = rawData.subList(sizePerLg * i, Math.min(sizePerLg * (i + 1), rawDataSize));
+                    var lgRawData = rawData.subList(countPerLg * i, Math.min(countPerLg * (i + 1), rawDataCount));
 
                     var lgData = new LgData(1, lgRawData);
                     lgData.createTransTDigests();
@@ -98,7 +98,7 @@ public class TransAggsPerformanceBench {
                     for (var transTDigestsBuffers : lgData.getTransTDigestsBuffers().values()) {
                         lgTdigestsSize += transTDigestsBuffers.position();
                     }
-                    System.out.println("LG total buffers size = " + lgTdigestsSize);
+                    System.out.println("LG total buffers size (bytes) = " + lgTdigestsSize);
                     totalLgsTdigestsSize += lgTdigestsSize;
                 }
             } else {
@@ -109,7 +109,7 @@ public class TransAggsPerformanceBench {
                 for (int i = 0; i < SrlConsts.MaxLgs; i++) {
                     System.out.println("LG #" + (i + 1) + "/" + SrlConsts.MaxLgs);
                     var rawData = generateLgData(aggsNum);
-                    totalRawDataSize += (SrlConsts.MaxDimensions / aggsNum) * SrlConsts.LgValuesPerDimension;
+                    totalRawDataCount += (SrlConsts.MaxDimensions / aggsNum) * SrlConsts.LgValuesPerDimension;
                     var lgData = new LgData(i % SrlConsts.MaxRegions, rawData, SrlConsts.MaxEmulations, SrlConsts.MaxTransactions / aggsNum);
                     lgData.createTransTDigests();
                     lgsData.add(lgData);
@@ -118,7 +118,7 @@ public class TransAggsPerformanceBench {
                     for (var transTDigestsBuffers : lgData.getTransTDigestsBuffers().values()) {
                         lgTdigestsSize += transTDigestsBuffers.position();
                     }
-                    System.out.println("LG total buffers size = " + lgTdigestsSize);
+                    System.out.println("LG total buffers size (bytes) = " + lgTdigestsSize);
                     totalLgsTdigestsSize += lgTdigestsSize;
                 }
             }
@@ -145,7 +145,7 @@ public class TransAggsPerformanceBench {
         long totalEndDur = System.currentTimeMillis();
         System.out.println("Total duration (msec) = " + ((totalEndDur - totalStartDur)));
 
-        System.out.println("Total raw data size = " + totalRawDataSize);
-        System.out.println("Total LGs tdigest size = " + totalLgsTdigestsSize);
+        System.out.println("Total raw data (count) = " + totalRawDataCount);
+        System.out.println("Total LGs tdigest size (bytes) = " + totalLgsTdigestsSize);
     }
 }
