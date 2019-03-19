@@ -25,8 +25,7 @@ public class DalSrc {
 
         // Turn use of the cursor on.
         st.setFetchSize(100);
-        ResultSet rs = st.executeQuery("SELECT id, script_id, transaction_name FROM " + createTableName(testId, runId, "transaction_dimensions") +
-                " WHERE id IN (SELECT DISTINCT dimension_id FROM " + createTableName(testId, runId, "raw_trn_metrics_new") + ")");
+        ResultSet rs = st.executeQuery("SELECT id, script_id, transaction_name FROM " + createTableName(testId, runId, "transaction_dimensions"));
 
         while (rs.next()) {
             pojos.add(new TransDimensionPojo(rs));
@@ -50,7 +49,8 @@ public class DalSrc {
 
         // make sure autocommit is off
         conn.setAutoCommit(false);
-        var ps = conn.prepareStatement("SELECT dimension_id, duration FROM " + createTableName(testId, runId, tableName) +
+        var ps = conn.prepareStatement(
+                "SELECT dimension_id, duration FROM " + createTableName(testId, runId, tableName) +
                 " WHERE start_time >= ? AND end_time < ? " +
                 " AND transaction_status = 1");
         ps.setLong(idx++, from);

@@ -26,7 +26,7 @@ public class TransAggsPerformanceBench {
 
     public static void main(String[] args) throws SQLException {
         if (args.length < 4) {
-            System.out.println("Usage: aggregatorNum ThreadsNum saveToDB fromSrcDB [testId runId]");
+            System.out.println("Usage: aggregatorNum ThreadsNum saveToDB [fromSrcDB [testId runId]]");
             System.exit(-1);
         }
 

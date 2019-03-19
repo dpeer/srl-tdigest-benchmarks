@@ -2,9 +2,9 @@ package Common;
 
 public class SrlConsts {
 
-    public final static int NumIterations = 5;
-    //public final static int AggDurationMilliSeconds = 60000;
-    public final static int AggDurationMilliSeconds = 1500;
+    public final static int NumIterations = 31;
+    public final static int AggDurationMilliSeconds = 60000;
+    //public final static int AggDurationMilliSeconds = 1500;
     public final static int TdCompression = 100;
     public final static int TdAggCompression = 200;
     public final static int MaxLgs = 10;

@@ -19,17 +19,23 @@ public class QueryTransTDigestMetrics {
         boolean fromSrcDB = false;
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
+        int percentile;
         String testId = "";
         String runId = "";
-        if (args.length > 0) {
-            fromSrcDB = Boolean.parseBoolean(args[0]);
+        if (args.length < 1) {
+            System.out.println("Usage: percentile [fromSrcDB [testId runId]]");
+            System.exit(-1);
+        }
+        percentile = Integer.parseInt(args[0]);
+        if (args.length > 1) {
+            fromSrcDB = Boolean.parseBoolean(args[1]);
             if (fromSrcDB) {
-                if (args.length < 3) {
+                if (args.length < 4) {
                     System.out.println("Must provide testId & runId");
                     System.exit(-1);
                 }
-                testId = args[1];
-                runId = args[2];
+                testId = args[2];
+                runId = args[3];
             }
         }
 
@@ -89,7 +95,7 @@ public class QueryTransTDigestMetrics {
             } else {
                 percentileKey = transGroupEntry.getKey();
             }
-            transPercentiles.put(percentileKey, mergeDigest.quantile(0.95));
+            transPercentiles.put(percentileKey, mergeDigest.quantile(percentile / 100));
         }
         endDur = System.currentTimeMillis();
         System.out.println("QueryTransTDigestMetrics.main: Create TDigests and calculate percentiles duration (msec) = " + (endDur - startDur));
@@ -98,7 +104,7 @@ public class QueryTransTDigestMetrics {
         System.out.println("Main: total duration (msec) = " + ((totalEndDur - totalStartDur)));
 
         for (var transPercentile : transPercentiles.entrySet()) {
-            System.out.println("Main: TransactionId = " + transPercentile.getKey() + "; 95% percentile = " + transPercentile.getValue());
+            System.out.println("Main: TransactionId = " + transPercentile.getKey() + "; " + percentile + "th percentile = " + transPercentile.getValue());
         }
     }
 }
