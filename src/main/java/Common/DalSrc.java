@@ -51,7 +51,7 @@ public class DalSrc {
         conn.setAutoCommit(false);
         var ps = conn.prepareStatement(
                 "SELECT dimension_id, duration FROM " + createTableName(testId, runId, tableName) +
-                " WHERE start_time >= ? AND start_time < ? " +
+                " WHERE start_time >= ? AND start_time <= ? " +
                 " AND transaction_status = 1");
         ps.setLong(idx++, from);
         ps.setLong(idx, to);
