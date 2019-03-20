@@ -17,14 +17,6 @@ public class DbConn {
         if (isInit) {
             return true;
         }
-        var dbHost = System.getenv("TD_DB_HOST");
-        if (dbHost == null) { dbHost = "localhost"; }
-        var dbName = System.getenv("TD_DB_NAME");
-        if (dbName == null) { dbName = "postgres"; }
-        var dbUser = System.getenv("TD_DB_USER");
-        if (dbUser == null) { dbUser = "postgres"; }
-        var dbPass = System.getenv("TD_DB_PASS");
-        if (dbPass == null) { dbPass = ""; }
         isInit = true;
 
         String url = "jdbc:postgresql://" + Config.getInstance().getDbHost() + ":5432/" + Config.getInstance().getDbName();
