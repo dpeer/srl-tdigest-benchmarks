@@ -46,6 +46,7 @@ public class TransAggsPerformanceBench {
         if (Config.getInstance().isFromSrcDB()) {
             var interNum = 0;
             while (true) {
+                interNum++;
                 System.out.println("******** Interval #" + (interNum + 1) + " ********");
                 lgsData.clear();
                 startDur = System.currentTimeMillis();
