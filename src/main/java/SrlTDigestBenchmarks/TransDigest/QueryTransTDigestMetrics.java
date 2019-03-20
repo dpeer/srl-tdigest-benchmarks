@@ -74,9 +74,9 @@ public class QueryTransTDigestMetrics {
             String percentileKey;
             if (Config.getInstance().isFromSrcDB()) {
                 var extDimensionId = externalDimensionIds.get(transGroupEntry.getKey());
-                percentileKey = extDimensionId.getTransactionName() + " (" + extDimensionId.getScriptId() + ")";
+                percentileKey = extDimensionId.getTransactionName() + "," + extDimensionId.getScriptId();
             } else {
-                percentileKey = transGroupEntry.getKey();
+                percentileKey = transGroupEntry.getKey() + "," + transGroupEntry.getKey();
             }
             transPercentiles.put(percentileKey, mergeDigest.quantile(Config.getInstance().getPercentile() / 100.0));
         }
@@ -86,8 +86,12 @@ public class QueryTransTDigestMetrics {
         totalEndDur = System.currentTimeMillis();
         System.out.println("total duration (msec) = " + ((totalEndDur - totalStartDur)));
 
+        System.out.println(Config.getInstance().getPercentile() + "th percentile:");
+        System.out.println("[");
         for (var transPercentile : transPercentiles.entrySet()) {
-            System.out.println("TransactionId = " + transPercentile.getKey() + "; " + Config.getInstance().getPercentile() + "th percentile = " + transPercentile.getValue());
+            var splitKey = transPercentile.getKey().split(",");
+            System.out.println("{\"transName\":" + splitKey[0] + "\",\"scriptId\":\"" + splitKey[1] + "\",\"percentile\":" + transPercentile.getValue() + "},");
         }
+        System.out.println("]");
     }
 }
