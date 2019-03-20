@@ -90,7 +90,7 @@ public class QueryTransTDigestMetrics {
         System.out.println("[");
         for (var transPercentile : transPercentiles.entrySet()) {
             var splitKey = transPercentile.getKey().split(",");
-            System.out.println("{\"transName\":" + splitKey[0] + "\",\"scriptId\":\"" + splitKey[1] + "\",\"percentile\":" + transPercentile.getValue() + "},");
+            System.out.println("{\"transName\":\"" + splitKey[0] + "\",\"scriptId\":\"" + splitKey[1] + "\",\"percentile\":" + transPercentile.getValue() + "},");
         }
         System.out.println("]");
     }
