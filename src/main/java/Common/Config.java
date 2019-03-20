@@ -68,9 +68,9 @@ public class Config {
         dbUser = getProperty("dbUser");
         dbPass = getProperty("dbPass");
         dbHostSrc = getProperty("dbHostSrc");
-        dbNameSrc = getProperty("dbHostSrc");
-        dbUserSrc = getProperty("dbHostSrc");
-        dbPassSrc = getProperty("dbHostSrc");
+        dbNameSrc = getProperty("dbNameSrc");
+        dbUserSrc = getProperty("dbUserSrc");
+        dbPassSrc = getProperty("dbPassSrc");
         testId = getProperty("testId");
         runId = getProperty("runId");
 
