@@ -46,7 +46,6 @@ public class TransAggsPerformanceBench {
         if (Config.getInstance().isFromSrcDB()) {
             var interNum = 0;
             while (true) {
-                interNum++;
                 System.out.println("******** Interval #" + (interNum + 1) + " ********");
                 lgsData.clear();
                 startDur = System.currentTimeMillis();
@@ -96,6 +95,8 @@ public class TransAggsPerformanceBench {
                         transNames.size(),
                         Config.getInstance().getThreadsNum());
                 resAgg.createTDigests(Config.getInstance().isSaveToDB());
+
+                interNum++;
             }
         } else {
             for (int iterNum = 0; iterNum < Config.getInstance().getNumIterations(); iterNum++) {
