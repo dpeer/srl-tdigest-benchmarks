@@ -66,7 +66,7 @@ public class TransAggsPerformanceBench {
 
                 AtomicInteger counter = new AtomicInteger(0);
                 var rawDataPartitions = rawData.stream()
-                        .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / Config.getInstance().getMaxLgs()))
+                        .collect(Collectors.groupingBy(it -> counter.getAndIncrement() % Config.getInstance().getMaxLgs()))
                         .values();
 
                 for (var rawDataPart : rawDataPartitions) {
