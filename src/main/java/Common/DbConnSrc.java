@@ -17,19 +17,12 @@ public class DbConnSrc {
         if (isInit) {
             return true;
         }
-        var dbHostSrc = System.getenv("TD_DB_HOST_SRC");
-        var dbNameSrc = System.getenv("TD_DB_NAME_SRC");
-        var dbUserSrc = System.getenv("TD_DB_USER_SRC");
-        var dbPassSrc = System.getenv("TD_DB_PASS_SRC");
-        if (dbHostSrc == null || dbNameSrc == null || dbUserSrc == null || dbPassSrc == null) {
-            return false;
-        }
         isInit = true;
 
-        String url = "jdbc:postgresql://" + dbHostSrc + ":5432/" + dbNameSrc;
+        String url = "jdbc:postgresql://" + Config.getInstance().getDbHostSrc() + ":5432/" + Config.getInstance().getDbNameSrc();
         Properties props = new Properties();
-        props.setProperty("user", dbUserSrc);
-        props.setProperty("password" ,dbPassSrc);
+        props.setProperty("user", Config.getInstance().getDbUserSrc());
+        props.setProperty("password" ,Config.getInstance().getDbPassSrc());
 
         dbConnection = DriverManager.getConnection(url, props);
         return true;

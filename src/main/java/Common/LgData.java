@@ -17,16 +17,16 @@ public class LgData {
 
     public LgData(int region, double[][] rawData) {
         this.region = region;
-        lgDimensionsData = new ArrayList<>(SrlConsts.MaxDimensionsPerLg);
+        lgDimensionsData = new ArrayList<>(Config.getInstance().getMaxDimensionsPerLg());
 
-        for (int i = 0; i < SrlConsts.MaxEmulations; i++) {
+        for (int i = 0; i < Config.getInstance().getMaxEmulations(); i++) {
             var rand = gen.nextInt();
-            for (int j = 0; j < SrlConsts.MaxTransactionsPerLgPerInterval; j++) {
+            for (int j = 0; j < Config.getInstance().getMaxTransactionsPerLgPerInterval(); j++) {
                 lgDimensionsData.add(new LgDimensionData(
                         region,
                         i,
-                        String.valueOf(j + (rand % 2 == 0 ? 0 : SrlConsts.MaxTransactionsPerLgPerInterval)),
-                        rawData[i * SrlConsts.MaxTransactionsPerLgPerInterval + j])
+                        String.valueOf(j + (rand % 2 == 0 ? 0 : Config.getInstance().getMaxTransactionsPerLgPerInterval())),
+                        rawData[i * Config.getInstance().getMaxTransactionsPerLgPerInterval() + j])
                 );
             }
         }
@@ -60,7 +60,7 @@ public class LgData {
     }
 
     public void createTDigests() {
-//        System.out.println("createTDigests: Creating TDigests and converting to buffers for " + SrlConsts.MaxDimensionsPerLg + " dimensions with " + SrlConsts.LgValuesPerDimension + " values per dimension");
+//        System.out.println("createTDigests: Creating TDigests and converting to buffers for " + Config.getInstance().getMaxDimensionsPerLg() + " dimensions with " + Config.getInstance().getLgValuesPerDimension() + " values per dimension");
 //        var startDur = System.currentTimeMillis();
 
         for (var lgDimensionData : lgDimensionsData) {
@@ -80,7 +80,7 @@ public class LgData {
         }
 
         for (var transName : transNames) {
-            transTDigests.put(transName, new MergingDigest(SrlConsts.TdCompression));
+            transTDigests.put(transName, new MergingDigest(Config.getInstance().getTdCompression()));
         }
 
         for (var lgDimensionData : lgDimensionsData) {

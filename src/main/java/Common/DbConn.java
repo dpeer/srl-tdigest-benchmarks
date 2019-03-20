@@ -27,10 +27,10 @@ public class DbConn {
         if (dbPass == null) { dbPass = ""; }
         isInit = true;
 
-        String url = "jdbc:postgresql://" + dbHost + ":5432/" + dbName;
+        String url = "jdbc:postgresql://" + Config.getInstance().getDbHost() + ":5432/" + Config.getInstance().getDbName();
         Properties props = new Properties();
-        props.setProperty("user", dbUser);
-        props.setProperty("password" ,dbPass);
+        props.setProperty("user", Config.getInstance().getDbUser());
+        props.setProperty("password" ,Config.getInstance().getDbPass());
 
         dbConnection = DriverManager.getConnection(url, props);
         return true;

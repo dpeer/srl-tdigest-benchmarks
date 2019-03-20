@@ -16,41 +16,24 @@ public class QueryTransTDigestMetrics {
     public static void main(String[] args) throws SQLException {
         long totalStartDur, totalEndDur, startDur, endDur;
 
-        boolean fromSrcDB = false;
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
-        int percentile;
-        String testId = "";
-        String runId = "";
-        if (args.length < 1) {
-            System.out.println("Usage: percentile [fromSrcDB [testId runId]]");
+
+        if (!DbConn.init()) {
+            System.out.println("Failed to connect to DB");
             System.exit(-1);
         }
-        percentile = Integer.parseInt(args[0]);
-        if (args.length > 1) {
-            fromSrcDB = Boolean.parseBoolean(args[1]);
-            if (fromSrcDB) {
-                if (args.length < 4) {
-                    System.out.println("Must provide testId & runId");
-                    System.exit(-1);
-                }
-                testId = args[2];
-                runId = args[3];
-            }
-        }
 
-        DbConn.init();
-
-        if (fromSrcDB) {
+        if (Config.getInstance().isFromSrcDB()) {
             if (!DbConnSrc.init()) {
                 System.out.println("Failed to connect to Source DB");
                 System.exit(-1);
             }
 
             startDur = System.currentTimeMillis();
-            externalDimensions = DalSrc.getDimensions(testId, runId);
+            externalDimensions = DalSrc.getDimensions(Config.getInstance().getTestId(), Config.getInstance().getRunId());
             endDur = System.currentTimeMillis();
-            System.out.println("Main: Get source dimensions duration (msec) = " + ((endDur - startDur)) + "; Dimensions count = " + externalDimensions.size());
+            System.out.println("Get source dimensions duration (msec) = " + ((endDur - startDur)) + "; Dimensions count = " + externalDimensions.size());
 
             for (var externalDimension : externalDimensions) {
                 externalDimensionIds.put(externalDimension.getId(), externalDimension);
@@ -59,16 +42,16 @@ public class QueryTransTDigestMetrics {
 
         totalStartDur = System.currentTimeMillis();
 
-        System.out.println("QueryTransTDigestMetrics.main: Retrieve TDigestTransMetrics from DB");
+        System.out.println("Retrieve TDigestTransMetrics from DB");
         startDur = System.currentTimeMillis();
 
         var tdigestTransMetrics = Dal.getTDigestTransMetrics();
 
         endDur = System.currentTimeMillis();
-        System.out.println("QueryTransTDigestMetrics.main: Retrieve TDigestTransMetrics from DB duration (msec) = " + (endDur - startDur));
+        System.out.println("Retrieve TDigestTransMetrics from DB duration (msec) = " + (endDur - startDur));
 
 
-        System.out.println("QueryTransTDigestMetrics.main: Group data per transaction");
+        System.out.println("Group data per transaction");
         startDur = System.currentTimeMillis();
 
         var transGroups = tdigestTransMetrics.stream().collect(Collectors.groupingBy(TransTDigestMetricsPojo::getTransactionId));
@@ -76,35 +59,35 @@ public class QueryTransTDigestMetrics {
         // Todo: Add multi threaded implementation.
 
         endDur = System.currentTimeMillis();
-        System.out.println("QueryTransTDigestMetrics.main: Group data per transaction duration (msec) = " + (endDur - startDur) + "; #Transaction = " + transGroups.size());
+        System.out.println("Group data per transaction duration (msec) = " + (endDur - startDur) + "; #Transactions = " + transGroups.size());
 
-        System.out.println("QueryTransTDigestMetrics.main: Create TDigests and calculate percentiles");
+        System.out.println("Create TDigests and calculate percentiles");
         startDur = System.currentTimeMillis();
 
         var transPercentiles = new HashMap<String, Double>(transGroups.size());
 
         for (var transGroupEntry : transGroups.entrySet()) {
-            var mergeDigest = new MergingDigest(SrlConsts.TdAggCompression);
+            var mergeDigest = new MergingDigest(Config.getInstance().getTdQueryCompression());
             for (var transTDigestMetricsPojo : transGroupEntry.getValue()) {
                 mergeDigest.add(MergingDigest.fromBytes(ByteBuffer.wrap(transTDigestMetricsPojo.getTdigestBuf())));
             }
             String percentileKey;
-            if (fromSrcDB) {
+            if (Config.getInstance().isFromSrcDB()) {
                 var extDimensionId = externalDimensionIds.get(transGroupEntry.getKey());
                 percentileKey = extDimensionId.getTransactionName() + " (" + extDimensionId.getScriptId() + ")";
             } else {
                 percentileKey = transGroupEntry.getKey();
             }
-            transPercentiles.put(percentileKey, mergeDigest.quantile(percentile / 100));
+            transPercentiles.put(percentileKey, mergeDigest.quantile(Config.getInstance().getPercentile() / 100.0));
         }
         endDur = System.currentTimeMillis();
-        System.out.println("QueryTransTDigestMetrics.main: Create TDigests and calculate percentiles duration (msec) = " + (endDur - startDur));
+        System.out.println("Create TDigests and calculate percentiles duration (msec) = " + (endDur - startDur));
 
         totalEndDur = System.currentTimeMillis();
-        System.out.println("Main: total duration (msec) = " + ((totalEndDur - totalStartDur)));
+        System.out.println("total duration (msec) = " + ((totalEndDur - totalStartDur)));
 
         for (var transPercentile : transPercentiles.entrySet()) {
-            System.out.println("Main: TransactionId = " + transPercentile.getKey() + "; " + percentile + "th percentile = " + transPercentile.getValue());
+            System.out.println("TransactionId = " + transPercentile.getKey() + "; " + Config.getInstance().getPercentile() + "th percentile = " + transPercentile.getValue());
         }
     }
 }

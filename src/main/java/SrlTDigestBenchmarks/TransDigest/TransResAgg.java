@@ -1,8 +1,8 @@
 package SrlTDigestBenchmarks.TransDigest;
 
+import Common.Config;
 import Common.Dal;
 import Common.LgData;
-import Common.SrlConsts;
 import com.tdunning.math.stats.MergingDigest;
 
 import java.nio.ByteBuffer;
@@ -68,7 +68,7 @@ class TransResAgg {
         var aggTDigests = new ConcurrentHashMap<String, MergingDigest>(numTransactionsActual);
         var aggByteBuffers = new ConcurrentHashMap<String, ByteBuffer>(numTransactionsActual);
         for (var transName : transNames) {
-            aggTDigests.put(transName, new MergingDigest(SrlConsts.TdAggCompression));
+            aggTDigests.put(transName, new MergingDigest(Config.getInstance().getTdAggCompression()));
         }
         endDur = System.currentTimeMillis();
         System.out.println("TransResAgg.createTDigests: Creating an empty tdigest per transaction duration (msec) = " + (endDur - startDur));

@@ -23,9 +23,9 @@ public class LgDimensionData {
     }
 
     public void createTDigest() {
-        var tDigest = new MergingDigest(SrlConsts.TdCompression);
+        var tDigest = new MergingDigest(Config.getInstance().getTdCompression());
 
-        for (int i = 0; i < SrlConsts.LgValuesPerDimension; i++) {
+        for (int i = 0; i < Config.getInstance().getLgValuesPerDimension(); i++) {
             tDigest.add(rawData[i]);
         }
 
