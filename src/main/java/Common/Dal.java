@@ -12,6 +12,10 @@ import java.util.Map;
 
 public class Dal {
 
+    private static String createTableName() {
+        return "tdigest_transaction_metrics_" + (Config.getInstance().getAggDurationMilliSeconds() / 1000) + "_" + Config.getInstance().getTdCompression() + "_" + Config.getInstance().getTdAggCompression();
+    }
+
     public static List<TransTDigestMetricsPojo> getTDigestTransMetrics() throws SQLException {
         var pojos = new ArrayList<TransTDigestMetricsPojo>();
         var conn = DbConn.getDbConnection();
@@ -22,7 +26,7 @@ public class Dal {
 
         // Turn use of the cursor on.
         st.setFetchSize(50);
-        ResultSet rs = st.executeQuery("SELECT * FROM tdigest_transaction_metrics");
+        ResultSet rs = st.executeQuery("SELECT * FROM " + createTableName());
         while (rs.next()) {
             pojos.add(new TransTDigestMetricsPojo(rs));
         }
@@ -39,7 +43,7 @@ public class Dal {
 
     public static void saveTDigestTransMetrics(long startTime, long endTime, Map<String, ByteBuffer> tdigestsBuffers) throws SQLException {
         var conn = DbConn.getDbConnection();
-        var ps = conn.prepareStatement("INSERT INTO tdigest_transaction_metrics VALUES (?, ?, ?, ?, ?, ?)");
+        var ps = conn.prepareStatement("INSERT INTO " + createTableName() + " VALUES (?, ?, ?, ?, ?, ?)");
 
         for (var tdigest : tdigestsBuffers.entrySet()) {
             var pojo = new TransTDigestMetricsPojo(
