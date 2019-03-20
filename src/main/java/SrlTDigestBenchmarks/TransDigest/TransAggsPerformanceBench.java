@@ -4,6 +4,8 @@ import Common.*;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class TransAggsPerformanceBench {
@@ -61,12 +63,14 @@ public class TransAggsPerformanceBench {
                     break;
                 }
                 totalRawDataCount += rawDataCount;
-                var countPerLg = rawDataCount / Config.getInstance().getMaxLgs();
 
-                for (int i = 0; i < Config.getInstance().getMaxLgs(); i++) {
-                    var lgRawData = rawData.subList(countPerLg * i, Math.min(countPerLg * (i + 1), rawDataCount));
+                AtomicInteger counter = new AtomicInteger(0);
+                var rawDataPartitions = rawData.stream()
+                        .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / Config.getInstance().getMaxLgs()))
+                        .values();
 
-                    var lgData = new LgData(1, lgRawData);
+                for (var rawDataPart : rawDataPartitions) {
+                    var lgData = new LgData(1, rawDataPart);
                     lgData.createTransTDigests();
                     lgsData.add(lgData);
 
