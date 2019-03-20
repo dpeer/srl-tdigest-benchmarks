@@ -41,6 +41,6 @@ class TransAggTDigestThread extends Thread {
             aggByteBuffers.put(transName, byteBuffer);
         }
 
-        System.out.println(threadName + " exiting.");
+        //System.out.println(threadName + " exiting.");
     }
 }
