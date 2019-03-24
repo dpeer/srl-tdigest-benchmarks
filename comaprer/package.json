@@ -1,0 +1,14 @@
+{
+  "name": "srl-tdigest-comaprer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "comparer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David Peer",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "yargs": "^12.0.1"
+  }
+}
