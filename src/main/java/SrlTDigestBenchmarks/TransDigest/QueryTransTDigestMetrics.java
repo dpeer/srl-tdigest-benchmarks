@@ -5,6 +5,7 @@ import Common.Pojos.TransDimensionPojo;
 import Common.Pojos.TransTDigestMetricsPojo;
 import com.tdunning.math.stats.MergingDigest;
 
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class QueryTransTDigestMetrics {
     public static void main(String[] args) throws SQLException {
-        long totalStartDur, totalEndDur, startDur, endDur;
+        long totalStartDur, totalEndDur, startDur, endDur, startMemUsed, endMemUsed;
 
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
@@ -23,6 +24,8 @@ public class QueryTransTDigestMetrics {
             System.out.println("Failed to connect to DB");
             System.exit(-1);
         }
+
+        totalStartDur = System.currentTimeMillis();
 
         if (Config.getInstance().isFromSrcDB()) {
             if (!DbConnSrc.init()) {
@@ -40,7 +43,8 @@ public class QueryTransTDigestMetrics {
             }
         }
 
-        totalStartDur = System.currentTimeMillis();
+        startMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        System.out.println("Start memory usage = " + startMemUsed);
 
         System.out.println("Retrieve TDigestTransMetrics from DB");
         startDur = System.currentTimeMillis();
@@ -49,6 +53,8 @@ public class QueryTransTDigestMetrics {
 
         endDur = System.currentTimeMillis();
         System.out.println("Retrieve TDigestTransMetrics from DB duration (msec) = " + (endDur - startDur));
+        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
 
 
         System.out.println("Group data per transaction");
@@ -60,6 +66,8 @@ public class QueryTransTDigestMetrics {
 
         endDur = System.currentTimeMillis();
         System.out.println("Group data per transaction duration (msec) = " + (endDur - startDur) + "; #Transactions = " + transGroups.size());
+        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
 
         System.out.println("Create TDigests and calculate percentiles");
         startDur = System.currentTimeMillis();
@@ -82,6 +90,8 @@ public class QueryTransTDigestMetrics {
         }
         endDur = System.currentTimeMillis();
         System.out.println("Create TDigests and calculate percentiles duration (msec) = " + (endDur - startDur));
+        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
 
         totalEndDur = System.currentTimeMillis();
         System.out.println("total duration (msec) = " + ((totalEndDur - totalStartDur)));

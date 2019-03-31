@@ -47,6 +47,10 @@ _.forOwn(accGrp, (value, key) => {
         let trans = {
             scriptId: key,
             transName: accTrans.name,
+            min: accTrans.min,
+            max: accTrans.max,
+            avg: accTrans.avg,
+            std: accTrans.std,
             accurate: accTrans.nintieth,
             tdigest: tdTrans.percentile,
             deviation: deviation,
