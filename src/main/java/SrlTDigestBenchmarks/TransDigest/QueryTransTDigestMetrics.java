@@ -109,7 +109,11 @@ public class QueryTransTDigestMetrics {
         if (args.length == 1) {
             var gson = new Gson();
             var json = gson.toJson(out);
-            var outFileName = "queryTransTDigestMetrics" + "_" + Config.getInstance().getTdCompression() + "_" + Config.getInstance().getTdAggCompression() + ".json";
+            var outFileName = "queryTransTDigestMetrics_" +
+                    Config.getInstance().getTdCompression() +
+                    "_" + Config.getInstance().getTdAggCompression() +
+                    "_" + Config.getInstance().getTdQueryCompression() +
+                    ".json";
             try (PrintWriter outFile = new PrintWriter(args[0] + "/" + outFileName)) {
                 outFile.println(json);
             } catch (FileNotFoundException e) {
