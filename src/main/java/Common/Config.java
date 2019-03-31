@@ -4,7 +4,7 @@ import java.util.Properties;
 
 public class Config {
     private static Config ourInstance = new Config();
-    private Properties configFile;
+    private static Properties configFile;
 
     private final int aggsNum;
     private final int threadsNum;

@@ -3,11 +3,15 @@ package SrlTDigestBenchmarks.TransDigest;
 import Common.*;
 import Common.Pojos.TransDimensionPojo;
 import Common.Pojos.TransTDigestMetricsPojo;
+import com.google.gson.Gson;
 import com.tdunning.math.stats.MergingDigest;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +19,11 @@ import java.util.stream.Collectors;
 
 public class QueryTransTDigestMetrics {
     public static void main(String[] args) throws SQLException {
-        long totalStartDur, totalEndDur, startDur, endDur, startMemUsed, endMemUsed;
+        long totalStartDur, startDur, startMemUsed;
 
         List<TransDimensionPojo> externalDimensions;
         Map<String, TransDimensionPojo> externalDimensionIds = new HashMap<>();
+        var out = new QureyTransTDigestMetricsOutput();
 
         if (!DbConn.init()) {
             System.out.println("Failed to connect to DB");
@@ -35,8 +40,8 @@ public class QueryTransTDigestMetrics {
 
             startDur = System.currentTimeMillis();
             externalDimensions = DalSrc.getDimensions(Config.getInstance().getTestId(), Config.getInstance().getRunId());
-            endDur = System.currentTimeMillis();
-            System.out.println("Get source dimensions duration (msec) = " + ((endDur - startDur)) + "; Dimensions count = " + externalDimensions.size());
+            out.getDimensionsTime = System.currentTimeMillis() - startDur;
+            System.out.println("Get source dimensions duration (msec) = " + out.getDimensionsTime + "; Dimensions count = " + externalDimensions.size());
 
             for (var externalDimension : externalDimensions) {
                 externalDimensionIds.put(externalDimension.getId(), externalDimension);
@@ -44,17 +49,17 @@ public class QueryTransTDigestMetrics {
         }
 
         startMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-        System.out.println("Start memory usage = " + startMemUsed);
+        out.startMemUsed = startMemUsed;
 
         System.out.println("Retrieve TDigestTransMetrics from DB");
         startDur = System.currentTimeMillis();
 
         var tdigestTransMetrics = Dal.getTDigestTransMetrics();
 
-        endDur = System.currentTimeMillis();
-        System.out.println("Retrieve TDigestTransMetrics from DB duration (msec) = " + (endDur - startDur));
-        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
+        out.retrieveTransFromDBTime = System.currentTimeMillis() - startDur;
+        out.retrieveTransFromDBMemDelta = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() - startMemUsed;
+        System.out.println("Retrieve TDigestTransMetrics from DB duration (msec) = " + out.retrieveTransFromDBTime);
+        System.out.println("Memory delta from start = " + out.retrieveTransFromDBMemDelta);
 
 
         System.out.println("Group data per transaction");
@@ -64,10 +69,10 @@ public class QueryTransTDigestMetrics {
 
         // Todo: Add multi threaded implementation.
 
-        endDur = System.currentTimeMillis();
-        System.out.println("Group data per transaction duration (msec) = " + (endDur - startDur) + "; #Transactions = " + transGroups.size());
-        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
+        out.groupDataPerTransTime = System.currentTimeMillis() - startDur;
+        out.groupDataPerTransMemDelta = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() - startMemUsed;
+        System.out.println("Group data per transaction duration (msec) = " + out.groupDataPerTransTime + "; #Transactions = " + transGroups.size());
+        System.out.println("Memory delta from start = " + out.groupDataPerTransMemDelta);
 
         System.out.println("Create TDigests and calculate percentiles");
         startDur = System.currentTimeMillis();
@@ -88,20 +93,53 @@ public class QueryTransTDigestMetrics {
             }
             transPercentiles.put(percentileKey, mergeDigest.quantile(Config.getInstance().getPercentile() / 100.0));
         }
-        endDur = System.currentTimeMillis();
-        System.out.println("Create TDigests and calculate percentiles duration (msec) = " + (endDur - startDur));
-        endMemUsed = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
-        System.out.println("Memory delta from start = " + (endMemUsed - startMemUsed));
+        out.calcTDigestsTime = System.currentTimeMillis() - startDur;
+        out.calcTDigestsMemDelta = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() - startMemUsed;
+        System.out.println("Create TDigests and calculate percentiles duration (msec) = " + out.calcTDigestsTime);
+        System.out.println("Memory delta from start = " + out.calcTDigestsMemDelta);
 
-        totalEndDur = System.currentTimeMillis();
-        System.out.println("total duration (msec) = " + ((totalEndDur - totalStartDur)));
+        out.totalTime = System.currentTimeMillis() - totalStartDur;
+        System.out.println("total duration (msec) = " + out.totalTime);
 
-        System.out.println(Config.getInstance().getPercentile() + "th percentile:");
-        System.out.println("[");
         for (var transPercentile : transPercentiles.entrySet()) {
             var splitKey = transPercentile.getKey().split(",");
-            System.out.println("{\"transName\":\"" + splitKey[0] + "\",\"scriptId\":\"" + splitKey[1] + "\",\"percentile\":" + transPercentile.getValue() + "},");
+            out.transData.add(new TransDataPojo(splitKey[0], splitKey[1], transPercentile.getValue()));
         }
-        System.out.println("]");
+
+        if (args.length == 1) {
+            Gson gson = new Gson();
+            String json = gson.toJson(out);
+            try (PrintWriter outFile = new PrintWriter(args[0])) {
+                outFile.println(json);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
+}
+
+class TransDataPojo {
+    String transName;
+    String scriptId;
+    double percentile;
+
+    public TransDataPojo(String transName, String scriptId, double percentile) {
+        this.transName = transName;
+        this.scriptId = scriptId;
+        this.percentile = percentile;
+    }
+}
+
+class QureyTransTDigestMetricsOutput {
+    Config config = Config.getInstance();
+    long startMemUsed;
+    long getDimensionsTime;
+    long retrieveTransFromDBTime;
+    long retrieveTransFromDBMemDelta;
+    long groupDataPerTransTime;
+    long groupDataPerTransMemDelta;
+    long calcTDigestsTime;
+    long calcTDigestsMemDelta;
+    long totalTime;
+    ArrayList<TransDataPojo> transData = new ArrayList<>();
 }
